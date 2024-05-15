@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyprpaper"
+version = "0.1.0"
+description = "Randomly change wallpaper for all monitors in hyprpaper."
+authors = [
+  {name="Raphael Tannous", email="raphaeltannous@proton.me"},
+]
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+keywords = ["hyprpaper", "hyprland", "pyprpaper"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+]
+
+[project.urls]
+Homepage = "https://github.com/rofe33/pyprpaper"
+Issues = "https://github.com/rofe33/pyprpaper/issues"
+
+[project.scripts]
+pyprpaper = "pyprpaper.pyprpaper:main"
