@@ -17,3 +17,30 @@ You can install `pyprpaper` using `pip`:
 ```sh
 pip install pyprpaper
 ```
+
+## Usage
+
+```
+usage: pyprpaper [-h] -m monitor1 monitor2 [monitor1 monitor2 ...] [-s SOCKET_PATH] [-k] [-r]
+                 [-f [additional file types ...]]
+                 path/to/directories [path/to/directories ...]
+
+A simple wallpaper changer.
+
+positional arguments:
+  path/to/directories   Path to directories containing the images.
+
+options:
+  -h, --help            show this help message and exit
+  -m monitor1 monitor2 [monitor1 monitor2 ...], --monitors monitor1 monitor2 [monitor1 monitor2 ...]
+                        Monitor(s) to change wallpapers on.
+  -s SOCKET_PATH, --socket-path SOCKET_PATH
+                        Override socket path.
+  -k, --keep-wallpapers-loaded
+                        Whether to keep wallpapers loaded in RAM or not.
+  -r, --recursive       Whether to recursive get the images from the directories.
+  -f [additional file types ...], --additional-file-types [additional file types ...]
+                        Additional image file types.
+
+All The Glory To Jesus God...
+```
