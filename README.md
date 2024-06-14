@@ -55,8 +55,7 @@ All The Glory To Jesus God...
 
 ### Example
 
-Change  wallpaper  for  all monitors  in  that  is
-running hyprland and hyprpaper:
+Change  wallpaper  for  all monitors in hyprland/hyprpaper set-up:
 
 ```sh
 pyprpaper -m $(hyprctl -j monitors | jq -r '.[].name' | tr '\n' ' ') -- /path/to/wallpaper/directories
