@@ -23,7 +23,7 @@ btw users:
 
 ```sh
 # With yay
-yay -S pyrpaper
+yay -S pyprpaper
 ```
 
 ## Usage
