@@ -1,0 +1,4 @@
+Checklist for releasing v0.2.0 of pyprpaper:
+x Allow relative path of directories to be passed.
+x Use socket requests instead of subprocess calls.
+x Pass monitors through command line option.
