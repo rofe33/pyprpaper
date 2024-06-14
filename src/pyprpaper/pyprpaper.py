@@ -24,7 +24,7 @@ class Pyprpaper():
                  additional_file_types: list[str] = [],
                  keep_wallpapers_loaded: bool = False,
                  recursive: bool = False):
-        self.directories = directories
+        self.directories = [x.absolute() for x in directories]
         self.additional_file_types = additional_file_types
         self.keep_wallpapers_loaded = keep_wallpapers_loaded
         self.monitors = monitors
