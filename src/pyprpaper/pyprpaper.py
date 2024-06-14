@@ -237,7 +237,7 @@ def main():
         args.get('directories'),
         args.get('monitors'),
         args.get('additional_file_types'),
-        args.get('keep_images_loaded'),
+        args.get('keep_wallpapers_loaded'),
         args.get('recursive'),
     )
 
