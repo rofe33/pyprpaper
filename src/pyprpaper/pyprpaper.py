@@ -5,20 +5,22 @@
 # License: GPLv3
 
 # Exit codes:
-# 33: hyprland doesn't have any instances running.
+# 33: something went wrong with hyprpaper.
 # 34: hyprpaper is not running.
-# 127: hyprctl command is not found.
 
 import argparse
 import pathlib
-import subprocess
 import sys
-import json
 import random
+import socket
+import os
+import pwd
+import time
 
 
 class Pyprpaper():
     def __init__(self,
+                 socket_path: pathlib.Path,
                  directories: list[pathlib.Path],
                  monitors: list[str],
                  additional_file_types: list[str] = [],
@@ -29,6 +31,7 @@ class Pyprpaper():
         self.keep_wallpapers_loaded = keep_wallpapers_loaded
         self.monitors = monitors
         self.recursive = recursive
+        self.socket_path = str(socket_path.absolute())
 
         self.file_types = [
             'png',
@@ -64,44 +67,102 @@ class Pyprpaper():
 
         return images
 
+    def _unload_used_wallpapers(self):
+        """Unloads loaded and used wallpapers."""
+        loaded_wallpapers: list = []
+
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+            s.connect(self.socket_path)
+
+            s.sendall(
+                b'listloaded'
+            )
+
+            response = s.recv(1024)
+
+        loaded_wallpapers = response.decode().split('\n')
+
+        for wallpaper in self.wallpapers_used:
+            if (str(wallpaper.absolute()) not in loaded_wallpapers):
+                continue
+
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+                s.connect(self.socket_path)
+
+                s.sendall(
+                    'unload '
+                    f'{wallpaper}'.strip().encode()
+                )
+
+                data = s.recv(1024)
+
+                if data != b'ok':
+                    print('Something went wrong with hyprpaper.')
+                    print(data.decode())
+                    sys.exit(33)
+
     def change_wallpapers(self):
         """Change wallpaper randomly for all monitors."""
         for monitor in self.monitors:
             random_wallpaper = random.choice(list(self.wallpapers))
 
-            subprocess.run(
-                [
-                    'hyprctl',
-                    'hyprpaper',
-                    'preload',
-                    f'{random_wallpaper}'.strip(),
-                ],
-                stdout=subprocess.DEVNULL,
-            )
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+                s.connect(self.socket_path)
+
+                s.sendall(
+                    'preload '
+                    f'{random_wallpaper}'.encode()
+                )
+
+                data = s.recv(1024)
+
+                if data != b'ok':
+                    print('Something went wrong with hyprpaper.')
+                    print(data.decode())
+                    sys.exit(33)
 
             self.wallpapers_used.append(random_wallpaper)
 
-            subprocess.run(
-                [
-                    'hyprctl',
-                    'hyprpaper',
-                    'wallpaper',
-                    f'{monitor},{random_wallpaper}',
-                ],
-                stdout=subprocess.DEVNULL,
-            )
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+                s.connect(self.socket_path)
+
+                s.sendall(
+                    'wallpaper '
+                    f'{monitor},{random_wallpaper}'.encode()
+                )
+
+                data = s.recv(1024)
+
+                if data != b'ok':
+                    print('Something went wrong with hyprpaper.')
+                    print(data.decode())
+                    sys.exit(33)
+
+            # Give hyprpaper  a little bit  of time,
+            # to change the wallpaper or it will not
+            # be changed.
+            if len(self.monitors) >= 2:
+                time.sleep(0.5)
 
         if not self.keep_wallpapers_loaded:
-            for wallpaper in self.wallpapers_used:
-                subprocess.run(
-                    [
-                        'hyprctl',
-                        'hyprpaper',
-                        'unload',
-                        f'{wallpaper}'.strip(),
-                    ],
-                    stdout=subprocess.DEVNULL,
-                )
+            self._unload_used_wallpapers()
+
+
+def get_socket_path() -> pathlib.Path:
+    """Returns the socket path."""
+    socket_path = pathlib.Path('/tmp/hypr/.hyprpaper.sock')
+
+    if not socket_path.is_file():
+        user_id = pwd.getpwuid(os.getuid()).pw_uid
+        socket_path = list(
+            pathlib.Path(f'/run/user/{user_id}/hypr').rglob('.hyprpaper.sock')
+        )
+
+    if len(socket_path) == 0:
+        print('Is Hyrpaper running?')
+        sys.exit(34)
+
+    return socket_path[0]
 
 
 def parse_arguments():
@@ -120,6 +181,22 @@ def parse_arguments():
         type=pathlib.Path,
         help='Path to directories containing the images.',
         metavar='path/to/directories',
+    )
+
+    parser.add_argument(
+        '-m',
+        '--monitors',
+        help='Monitor(s) to change wallpapers on.',
+        nargs='+',
+        metavar='monitor1 monitor2',
+        required=True,
+    )
+
+    parser.add_argument(
+        '-s',
+        '--socket-path',
+        type=pathlib.Path,
+        help='Override socket path.',
     )
 
     parser.add_argument(
@@ -150,62 +227,15 @@ def parse_arguments():
     return vars(args)
 
 
-def check_hyprs_status():
-    """Checks if hyprland and hyprpaper are running."""
-    try:
-        instances = subprocess.run(
-            [
-                'hyprctl',
-                '-j',
-                'instances',
-            ],
-            capture_output=True,
-        )
-
-        if len(json.loads(instances.stdout)) == 0:
-            print('You don\'t have any hyprland instance running.')
-            sys.exit(33)
-    except FileNotFoundError:
-        print('Do you have hyprland installed?')
-        sys.exit(127)  # Command not found
-
-    hyprpaper = subprocess.run(
-        [
-            'hyprctl',
-            'hyprpaper',
-        ],
-        capture_output=True,
-    )
-
-    if (hyprpaper.returncode == 3 or
-            hyprpaper.stdout.decode().strip().endswith('(3)')):
-        print('Is hyprpaper running?')
-        sys.exit(34)
-
-
-def get_monitors() -> list[str]:
-    monitors_info = subprocess.run(
-        [
-            'hyprctl',
-            '-j',
-            'monitors',
-        ],
-        capture_output=True,
-    )
-
-    return [
-        monitor.get('name') for monitor in json.loads(monitors_info.stdout)
-    ]
-
-
 def main():
-    check_hyprs_status()
-
     args = parse_arguments()
 
+    socket_path = args.get('socket_path') or get_socket_path()
+
     pyprpaper = Pyprpaper(
+        socket_path,
         args.get('directories'),
-        get_monitors(),
+        args.get('monitors'),
         args.get('additional_file_types'),
         args.get('keep_images_loaded'),
         args.get('recursive'),
