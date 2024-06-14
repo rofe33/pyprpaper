@@ -44,3 +44,12 @@ options:
 
 All The Glory To Jesus God...
 ```
+
+### Example
+
+Change  wallpaper  for  all monitors  in  that  is
+running hyprland and hyprpaper:
+
+```sh
+pyprpaper -m $(hyprctl -j monitors | jq -r '.[].name' | tr '\n' ' ') -- /path/to/wallpaper/directories
+```
