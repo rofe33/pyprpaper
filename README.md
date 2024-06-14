@@ -21,7 +21,7 @@ pip install pyprpaper
 It is also available in the AUR for the arch linux
 btw users:
 
-```
+```sh
 # With yay
 yay -S pyrpaper
 ```
