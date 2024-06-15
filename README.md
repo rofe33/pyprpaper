@@ -12,13 +12,13 @@ directory(ies).
 
 ## Installation
 
-You can install `pyprpaper` using `pip`:
+You can install [pyprpaper](https://pypi.org/project/pyprpaper/) using `pip`:
 
 ```sh
 pip install pyprpaper
 ```
 
-It is also available in the AUR for the arch linux
+It is also available in the AUR ([pyprpaper](https://aur.archlinux.org/packages/pyprpaper)) for the arch linux
 btw users:
 
 ```sh
