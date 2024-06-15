@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyprpaper"
-version = "0.2.0"
-description = "Randomly change wallpaper for given monitors in hyprpaper."
+version = "0.2.1"
+description = "Randomly change wallpaper for given monitor(s) in hyprpaper."
 authors = [
   {name="Raphael Tannous", email="raphaeltannous@proton.me"},
 ]
