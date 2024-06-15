@@ -158,6 +158,12 @@ def get_socket_path() -> pathlib.Path:
             pathlib.Path(f'/run/user/{user_id}/hypr').rglob('.hyprpaper.sock')
         )
 
+        # Getting the working hyprpaper socket
+        socket_path = [
+            x for x in socket_path
+            if x.parent.joinpath('hyprland.lock').is_file()
+        ]
+
     if len(socket_path) == 0:
         print('Is Hyrpaper running?')
         sys.exit(34)
