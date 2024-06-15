@@ -26,6 +26,9 @@ btw users:
 yay -S pyprpaper
 ```
 
+The `PKGBUILD` and `.SRCINFO` files are at
+[rofe33/pyprpaper-aur](https://github.com/rofe33/pyprpaper-aur).
+
 ## Usage
 
 ```
