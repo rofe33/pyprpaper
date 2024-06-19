@@ -138,13 +138,12 @@ class Pyprpaper():
                     print(data.decode())
                     sys.exit(33)
 
+        if not self.keep_wallpapers_loaded:
             # Give hyprpaper  a little bit  of time,
             # to change the wallpaper or it will not
             # be changed.
-            if len(self.monitors) >= 2:
-                time.sleep(0.5)
+            time.sleep(0.5)
 
-        if not self.keep_wallpapers_loaded:
             self._unload_used_wallpapers()
 
 
