@@ -6,3 +6,6 @@ x Pass monitors through command line option.
 Checklist for releasing v0.2.1 of pyprpaper:
 x Fix  get_socket_path() getting wrong .hyprpaper.sock,
   if there's multiple .hyprpaper.sock files.
+
+Checklist for releasing v0.2.2 of pyprpaper:
+x Sleep for .5s before unloading images.
