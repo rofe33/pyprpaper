@@ -234,9 +234,28 @@ def parse_arguments():
         help='Additional image file types.',
     )
 
+    parser.add_argument(
+        '-t',
+        '--timer',
+        type=int,
+        help='Timer to change the wallpaper each n seconds'
+    )
+
     args = parser.parse_args()
 
     return vars(args)
+
+
+def timer(delay, func):
+    """Timer funtion to run func each delay seconds."""
+    next_time = time.time() + delay
+
+    while True:
+        time.sleep(max(0, next_time - time.time()))
+
+        func()
+
+        next_time += (time.time() - next_time) // delay * delay + delay
 
 
 def main():
@@ -254,5 +273,10 @@ def main():
     )
 
     pyprpaper.change_wallpapers()
+
+    if args.get('timer') is None:
+        sys.exit(0)
+
+    timer(args.get('timer'), pyprpaper.change_wallpapers)
 
     sys.exit(0)
