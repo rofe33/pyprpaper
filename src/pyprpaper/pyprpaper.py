@@ -267,6 +267,11 @@ def main():
     signal.signal(signal.SIGINT, signal_handling)
     args = parse_arguments()
 
+    if args.get('timer') is not None and args.get('timer') < 10:
+        print('Delay should be greater than 10.')
+
+        sys.exit(0)
+
     socket_path = args.get('socket_path') or get_socket_path()
 
     pyprpaper = Pyprpaper(
@@ -282,9 +287,6 @@ def main():
 
     if args.get('timer') is None:
         sys.exit(0)
-
-    if args.get('timer') < 10:
-        print('Delay should be greater than 10.')
 
     timer(args.get('timer'), pyprpaper.change_wallpapers)
 
