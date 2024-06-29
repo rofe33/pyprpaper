@@ -283,6 +283,9 @@ def main():
     if args.get('timer') is None:
         sys.exit(0)
 
+    if args.get('timer') < 10:
+        print('Delay should be greater than 10.')
+
     timer(args.get('timer'), pyprpaper.change_wallpapers)
 
     sys.exit(0)
