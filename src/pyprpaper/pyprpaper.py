@@ -189,6 +189,13 @@ def parse_arguments():
     )
 
     parser.add_argument(
+        '-v',
+        '--version',
+        action='version',
+        version='%(prog)s 0.2.2',
+    )
+
+    parser.add_argument(
         '-m',
         '--monitors',
         help='Monitor(s) to change wallpapers on.',
