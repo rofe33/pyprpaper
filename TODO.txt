@@ -9,3 +9,7 @@ x Fix  get_socket_path() getting wrong .hyprpaper.sock,
 
 Checklist for releasing v0.2.2 of pyprpaper:
 x Sleep for .5s before unloading images.
+
+Checklist for future releases:
+x -v/--version for pyprpaper version.
+- Change wallpaper every n seconds.
