@@ -16,6 +16,7 @@ import socket
 import os
 import pwd
 import time
+import signal
 
 
 class Pyprpaper():
@@ -258,7 +259,12 @@ def timer(delay, func):
         next_time += (time.time() - next_time) // delay * delay + delay
 
 
+def signal_handling(signum, frame):
+    sys.exit()
+
+
 def main():
+    signal.signal(signal.SIGINT, signal_handling)
     args = parse_arguments()
 
     socket_path = args.get('socket_path') or get_socket_path()
