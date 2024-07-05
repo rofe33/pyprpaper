@@ -43,7 +43,15 @@ class Pyprpaper():
         self.file_types += self.additional_file_types
 
         self.wallpapers: list[pathlib.Path] = self.get_images()
-        self.wallpapers_used: list[pathlib.Path] = []
+
+        # active_wallpapers  are   the  wallpapers
+        # that  are  currently  displayed  on  the
+        # monitor(s).
+        self.active_wallpapers: list[pathlib.Path] = []
+
+        # used_wallpapers  are the  wallpapers are
+        # now being used.
+        self.used_wallpapers: list[pathlib.Path] = []
 
     def _get_directory_images(self,
                               directory: pathlib.Path) -> list[pathlib.Path]:
@@ -58,6 +66,29 @@ class Pyprpaper():
             images += list(directory.glob(f'*.{file_type}'))
 
         return images
+
+    def _get_active_wallpapers(self) -> list[pathlib.Path]:
+        """Returns a list of active wallpapers."""
+
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+            s.connect(self.socket_path)
+
+            s.sendall(
+                b'listactive'
+            )
+
+            response = s.recv(1024)
+
+        if response == b'no wallpapers active':
+            return []
+
+        # listactive example:
+        # DP-1 = /path/wallpaper_01.jpg
+        # eDP-1 = /path/wallpaper_02.jpg
+
+        return [
+            pathlib.Path(x.split()[2]) for x in response.decode().split('\n')
+        ]
 
     def get_images(self) -> list[pathlib.Path]:
         """Get all images for all directories."""
@@ -83,7 +114,7 @@ class Pyprpaper():
 
         loaded_wallpapers = response.decode().split('\n')
 
-        for wallpaper in self.wallpapers_used:
+        for wallpaper in self.used_wallpapers:
             if (str(wallpaper.absolute()) not in loaded_wallpapers):
                 continue
 
@@ -104,8 +135,20 @@ class Pyprpaper():
 
     def change_wallpapers(self):
         """Change wallpaper randomly for all monitors."""
+        self.active_wallpapers = self._get_active_wallpapers()
+
         for monitor in self.monitors:
-            random_wallpaper = random.choice(list(self.wallpapers))
+            random_wallpaper: pathlib.Path = pathlib.Path(
+                random.choice(self.wallpapers)
+            )
+
+            # Do not use active and used wallpapers.
+            while True:
+                if (random_wallpaper not in self.active_wallpapers
+                        and random_wallpaper not in self.used_wallpapers):
+                    break
+
+                random_wallpaper = pathlib.Path(random.choice(self.wallpapers))
 
             with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
                 s.connect(self.socket_path)
@@ -122,7 +165,7 @@ class Pyprpaper():
                     print(data.decode())
                     sys.exit(33)
 
-            self.wallpapers_used.append(random_wallpaper)
+            self.used_wallpapers.append(random_wallpaper)
 
             with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
                 s.connect(self.socket_path)
@@ -146,6 +189,9 @@ class Pyprpaper():
             time.sleep(0.5)
 
             self._unload_used_wallpapers()
+
+        # Cleaning self.used_wallpapers
+        self.used_wallpapers = []
 
 
 def get_socket_path() -> pathlib.Path:
@@ -248,7 +294,7 @@ def parse_arguments():
 
 
 def timer(delay, func):
-    """Timer funtion to run func each delay seconds."""
+    """Timer function to run func each delay seconds."""
     next_time = time.time() + delay
 
     while True:
