@@ -14,3 +14,6 @@ Checklist for releasing v0.3.0 of pyprpaper:
 x -v/--version for pyprpaper version.
 x Change wallpaper every n seconds.
 x Implement signal handling (mainly for CTRL+C).
+
+Checklist for releasing v0.3.1 of pyprpaper:
+x Do not used already used wallpapers or active wallpapers.
