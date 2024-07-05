@@ -17,3 +17,7 @@ x Implement signal handling (mainly for CTRL+C).
 
 Checklist for releasing v0.3.1 of pyprpaper:
 x Do not used already used wallpapers or active wallpapers.
+
+Checklist for releasing v1.0.0 of pyprpaper:
+- Implement `pyprpaper set` to set a wallpaper.
+- Implement `pyprpaper random` to randomize the wallpapers.
