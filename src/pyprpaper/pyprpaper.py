@@ -198,23 +198,24 @@ def get_socket_path() -> pathlib.Path:
     """Returns the socket path."""
     socket_path = pathlib.Path('/tmp/hypr/.hyprpaper.sock')
 
-    if not socket_path.is_file():
-        user_id = pwd.getpwuid(os.getuid()).pw_uid
-        socket_path = list(
-            pathlib.Path(f'/run/user/{user_id}/hypr').rglob('.hyprpaper.sock')
-        )
+    # None-Hyprland/Hyprpaper setup
+    if socket_path.is_file():
+        return socket_path
 
-        # Getting the working hyprpaper socket
-        socket_path = [
-            x for x in socket_path
-            if x.parent.joinpath('hyprland.lock').is_file()
-        ]
+    # Hyprland/Hyprpaper setup
+    user_id = pwd.getpwuid(os.getuid()).pw_uid
 
-    if len(socket_path) == 0:
-        print('Is Hyrpaper running?')
-        sys.exit(34)
+    available_sockets = pathlib.Path(
+        f'/run/user/{user_id}/hypr'
+    ).rglob('.hyprpaper.sock')
 
-    return socket_path[0]
+    # Getting the working hyprpaper socket
+    for socket_ in available_sockets:
+        if socket_.parent.joinpath('hyprland.lock').is_file():
+            return socket_
+
+    print('Is Hyrpaper running?')
+    sys.exit(34)
 
 
 def parse_arguments():
