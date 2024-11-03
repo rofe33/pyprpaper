@@ -137,18 +137,19 @@ class Pyprpaper():
         """Change wallpaper randomly for all monitors."""
         self.active_wallpapers = self._get_active_wallpapers()
 
+        random_wallpaper: pathlib.Path = pathlib.Path(
+            random.choice(self.wallpapers)
+        )
+
+        # Do not use active and used wallpapers.
+        while True:
+            if (random_wallpaper not in self.active_wallpapers
+                    and random_wallpaper not in self.used_wallpapers):
+                break
+
+            random_wallpaper = pathlib.Path(random.choice(self.wallpapers))
+
         for monitor in self.monitors:
-            random_wallpaper: pathlib.Path = pathlib.Path(
-                random.choice(self.wallpapers)
-            )
-
-            # Do not use active and used wallpapers.
-            while True:
-                if (random_wallpaper not in self.active_wallpapers
-                        and random_wallpaper not in self.used_wallpapers):
-                    break
-
-                random_wallpaper = pathlib.Path(random.choice(self.wallpapers))
 
             with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
                 s.connect(self.socket_path)
