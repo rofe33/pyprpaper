@@ -35,8 +35,8 @@ The `PKGBUILD` and `.SRCINFO` files are at
 
 ```
 usage: pyprpaper [-h] [-v] -m monitor1 monitor2 [monitor1 monitor2 ...]
-                 [-s SOCKET_PATH] [-k] [-r] [-f [additional file types ...]]
-                 [-t TIMER]
+                 [-s SOCKET_PATH] [-k] [-K] [-r]
+                 [-f [additional file types ...]] [-t TIMER]
                  path/to/directories [path/to/directories ...]
 
 A simple wallpaper changer.
@@ -53,6 +53,9 @@ options:
                         Override socket path.
   -k, --keep-wallpapers-loaded
                         Whether to keep wallpapers loaded in RAM or not.
+  -K, --keep-wallpapers-consistent
+                        Whether to randomly set the same wallpaper for all the
+                        monitors.
   -r, --recursive       Whether to recursive get the images from the
                         directories.
   -f [additional file types ...], --additional-file-types [additional file types ...]
