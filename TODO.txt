@@ -21,3 +21,13 @@ x Do not used already used wallpapers or active wallpapers.
 Checklist for releasing v0.3.2 of pyprpaper:
 x -K option to keep wallpaper consistent across monitors.
 x Fix error while getting socket for none-hyprland/hyprpaper setup.
+
+Checklist for releasing v0.3.3 of pyprpaper:
+- Fix logic behind checking if the wallpaper is active.
+  * Remove active  wallpaper from  wallpapers list
+  * if  length   >  the   length  of   the  active
+  * wallpapers.
+- Better documentation.
+
+Checklist for future relases:
+- Re-write in Go.
