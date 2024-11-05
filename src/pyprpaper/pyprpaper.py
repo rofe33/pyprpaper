@@ -26,10 +26,12 @@ class Pyprpaper():
                  monitors: list[str],
                  additional_file_types: list[str] = [],
                  keep_wallpapers_loaded: bool = False,
+                 keep_wallpapers_consistent: bool = False,
                  recursive: bool = False):
         self.directories = [x.absolute() for x in directories]
         self.additional_file_types = additional_file_types
         self.keep_wallpapers_loaded = keep_wallpapers_loaded
+        self.keep_wallpapers_consistent = keep_wallpapers_consistent
         self.monitors = monitors
         self.recursive = recursive
         self.socket_path = str(socket_path.absolute())
@@ -115,6 +117,7 @@ class Pyprpaper():
         loaded_wallpapers = response.decode().split('\n')
 
         for wallpaper in self.used_wallpapers:
+            # Do not unload not loaded wallpapers by pyprpaper.
             if (str(wallpaper.absolute()) not in loaded_wallpapers):
                 continue
 
@@ -137,18 +140,22 @@ class Pyprpaper():
         """Change wallpaper randomly for all monitors."""
         self.active_wallpapers = self._get_active_wallpapers()
 
+        random_wallpaper: pathlib.Path = pathlib.Path(
+            random.choice(self.wallpapers)
+        )
+
         for monitor in self.monitors:
-            random_wallpaper: pathlib.Path = pathlib.Path(
-                random.choice(self.wallpapers)
-            )
+            if not self.keep_wallpapers_consistent:
+                # Do not use active and used wallpapers.
+                # Wallpaper will change for the second time.
+                while True:
+                    if (random_wallpaper not in self.active_wallpapers
+                            and random_wallpaper not in self.used_wallpapers):
+                        break
 
-            # Do not use active and used wallpapers.
-            while True:
-                if (random_wallpaper not in self.active_wallpapers
-                        and random_wallpaper not in self.used_wallpapers):
-                    break
-
-                random_wallpaper = pathlib.Path(random.choice(self.wallpapers))
+                    random_wallpaper = pathlib.Path(
+                        random.choice(self.wallpapers)
+                    )
 
             with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
                 s.connect(self.socket_path)
@@ -267,6 +274,13 @@ def parse_arguments():
     )
 
     parser.add_argument(
+        '-K',
+        '--keep-wallpapers-consistent',
+        action='store_true',
+        help='Whether to randomly set the same wallpaper for all the monitors.',
+    )
+
+    parser.add_argument(
         '-r',
         '--recursive',
         action='store_true',
@@ -327,6 +341,7 @@ def main():
         args.get('monitors'),
         args.get('additional_file_types'),
         args.get('keep_wallpapers_loaded'),
+        args.get('keep_wallpapers_consistent'),
         args.get('recursive'),
     )
 
