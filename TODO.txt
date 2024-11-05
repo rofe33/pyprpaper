@@ -19,5 +19,5 @@ Checklist for releasing v0.3.1 of pyprpaper:
 x Do not used already used wallpapers or active wallpapers.
 
 Checklist for releasing v0.3.2 of pyprpaper:
-- -K option to keep wallpaper consistent across monitors.
-- Fix error while getting socket for none-hyprland/hyprpaper setup.
+x -K option to keep wallpaper consistent across monitors.
+x Fix error while getting socket for none-hyprland/hyprpaper setup.
